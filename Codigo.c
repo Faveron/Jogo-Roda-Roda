@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
-#include <ctype.h>
 
 #define SENHA 8943581
 #define MAXCARC 17
@@ -23,12 +22,14 @@ typedef struct
 } jogador;
 
 FILE *arquivo_leitura;
+jogador j[3];
 
 void lista_operacoes();
 void imprimir_banco_de_dados();
 void adicionar_ao_banco_de_dados();
 void sortear_palavra(char Pi[], char Pa[][MAXCARC], int *k);
 float sortear_valor_letra();
+void exibir_tela(char Pi[], int n, char Pa[][MAXCARC], int comp[][MAXCARC]);
 
 int main()
 {
@@ -39,7 +40,6 @@ int main()
     int senha, i, k, Qtd_da_rodada, letras_faltando, cont;
     int Matriz_de_comparacao[MAXPAL][MAXCARC];
     float valor;
-    jogador j[3];
 
     printf("BEM-VIMDO ao jogo Roda a Roda\n");
     lista_operacoes();
@@ -86,32 +86,18 @@ int main()
                 {
                     if (j[0].jogada == 1)
                     {
-                        printf("\n\tA palavra está associada com: \t%s\n", Pista_da_rodada);
-                        for (i = 0; i < Qtd_da_rodada; i++)
-                        {
-                            printf("\n\t\t\t");
-                            for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
-                            {
-                                if (Matriz_de_comparacao[i][k] == 0)
-                                    printf(" %c", Palavras_da_rodada[i][k]);
-                                if (Matriz_de_comparacao[i][k] == 1)
-                                    printf(" _");
-                            }
-                            printf("\n");
-                        }
-                        printf("\n\n\t\t%s\t\t%s\t\t%s\n", j[0].nome, j[1].nome, j[2].nome);
-                        printf("\t\t==========\t==========\t==========\n");
-                        printf("\t\tR$ %d,00\t\tR$ %d,00\t\tR$ %d,00\n", j[0].valor, j[1].valor, j[2].valor);
+                        exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
 
                         if(letras_faltando > 3)
                         {
-                            printf("\n\nRoda a roda!");
+                            printf("\n\nRoda a roda!\n");
+                            system("pause");
                             valor = sortear_valor_letra();
 
                             if(valor == 0)
                             {
-                               printf("\n\nPASSA A VEZ");
-                               printf("\n\nA vez será passada para o jogador 2");
+                               printf("\nPASSA A VEZ");
+                               printf("\n\nA vez será passada para %s\n", j[1].nome);
                                j[0].jogada = 0;
                                j[1].jogada = 1;
                             }
@@ -119,17 +105,22 @@ int main()
                             {
                                 if(valor > 0 && valor < 0.02)
                                 {
-                                    printf("\n\nPERDEU TUDO");
-                                    printf("\n\nA vez será passada para o jogador 2");
+                                    printf("\nPERDEU TUDO");
+                                    printf("\n\nA vez será passada para %s\n", j[1].nome);
                                     j[0].valor = 0;
                                     j[0].jogada = 0;
                                     j[1].jogada = 1;
                                 }
                                 else
                                 {
-                                    printf("\nUma letra por R$ %.0f,00: ", valor);
-                                    fflush(stdin); scanf("%c", &letra);
-                                    letra = toupper(letra);
+                                    cont = 0;
+                                    do
+                                    {
+                                        printf("\nUma letra por R$ %.0f,00: ", valor);
+                                        fflush(stdin); scanf("%c", &letra);
+                                        letra = toupper(letra);
+                                    }while (cont != 0);
+
                                     cont = 0;
                                     for (i = 0; i < Qtd_da_rodada; i++)
                                     {
@@ -146,7 +137,7 @@ int main()
                                     if(cont == 0)
                                     {
                                         printf("\nNão existe letra %c na palavra.", letra);
-                                        printf("\n\nA vez será passada para o jogador 2");
+                                        printf("\n\nA vez será passada para %s\n", j[1].nome);
                                         j[0].jogada = 0;
                                         j[1].jogada = 1;
                                     }
@@ -160,7 +151,7 @@ int main()
                             if (valor == 0)
                             {
                                 printf("\n\nPASSA A VEZ");
-                                printf("\n\nA vez será passada para o jogador 2");
+                                printf("\n\nA vez será passada para %s\n", j[1].nome);
                                 j[0].jogada = 0;
                                 j[1].jogada = 1;
                             }
@@ -169,7 +160,7 @@ int main()
                                 if(valor > 0 && valor < 0.02)
                                 {
                                     printf("\n\nPERDEU TUDO");
-                                    printf("\n\nA vez será passada para o jogador 2");
+                                    printf("\n\nA vez será passada para %s\n", j[1].nome);
                                     j[0].valor = 0;
                                     j[0].jogada = 0;
                                     j[1].jogada = 1;
@@ -185,32 +176,18 @@ int main()
                     {
                         if (j[1].jogada == 1)
                         {
-                            printf("\n\tA palavra está associada com: \t%s\n", Pista_da_rodada);
-                            for (i = 0; i < Qtd_da_rodada; i++)
-                            {
-                                printf("\n\t\t\t");
-                                for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
-                                {
-                                    if (Matriz_de_comparacao[i][k] == 0)
-                                        printf(" %c", Palavras_da_rodada[i][k]);
-                                    if (Matriz_de_comparacao[i][k] == 1)
-                                        printf(" _");
-                                }
-                                printf("\n");
-                            }
-                            printf("\n\n\t\t%s\t\t%s\t\t%s\n", j[0].nome, j[1].nome, j[2].nome);
-                            printf("\t\t==========\t==========\t==========\n");
-                            printf("\t\tR$ %d,00\t\tR$ %d,00\t\tR$ %d,00\n", j[0].valor, j[1].valor, j[2].valor);
+                            exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
 
                             if(letras_faltando > 3)
                             {
-                                printf("\n\nRoda a roda!");
+                                printf("\n\nRoda a roda!\n");
+                                system("pause");
                                 valor = sortear_valor_letra();
 
                                 if(valor == 0)
                                 {
                                    printf("\n\nPASSA A VEZ");
-                                   printf("\n\nA vez será passada para o jogador 3");
+                                   printf("\n\nA vez será passada para %s\n", j[2].nome);
                                    j[1].jogada = 0;
                                    j[2].jogada = 1;
                                 }
@@ -219,7 +196,7 @@ int main()
                                     if(valor > 0 && valor < 0.02)
                                     {
                                         printf("\n\nPERDEU TUDO");
-                                        printf("\n\nA vez será passada para o jogador 3");
+                                        printf("\n\nA vez será passada para %s\n", j[2].nome);
                                         j[1].valor = 0;
                                         j[1].jogada = 0;
                                         j[2].jogada = 1;
@@ -245,7 +222,7 @@ int main()
                                         if(cont == 0)
                                         {
                                             printf("\nNão existe letra %c na palavra.", letra);
-                                            printf("\n\nA vez será passada para o jogador 3");
+                                            printf("\n\nA vez será passada para %s\n", j[2].nome);
                                             j[1].jogada = 0;
                                             j[2].jogada = 1;
                                         }
@@ -259,7 +236,7 @@ int main()
                                 if (valor == 0)
                                 {
                                     printf("\n\nPASSA A VEZ");
-                                    printf("\n\nA vez será passada para o jogador 3");
+                                    printf("\n\nA vez será passada para %s\n", j[2].nome);
                                     j[1].jogada = 0;
                                     j[2].jogada = 1;
                                 }
@@ -268,7 +245,7 @@ int main()
                                     if(valor > 0 && valor < 0.02)
                                     {
                                         printf("\n\nPERDEU TUDO");
-                                        printf("\n\nA vez será passada para o jogador 3");
+                                        printf("\n\nA vez será passada para %s\n", j[2].nome);
                                         j[1].valor = 0;
                                         j[1].jogada = 0;
                                         j[2].jogada = 1;
@@ -284,32 +261,18 @@ int main()
                         {
                             if (j[2].jogada == 1)
                             {
-                                printf("\n\tA palavra está associada com: \t%s\n", Pista_da_rodada);
-                                for (i = 0; i < Qtd_da_rodada; i++)
-                                {
-                                    printf("\n\t\t\t");
-                                    for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
-                                    {
-                                        if (Matriz_de_comparacao[i][k] == 0)
-                                            printf(" %c", Palavras_da_rodada[i][k]);
-                                        if (Matriz_de_comparacao[i][k] == 1)
-                                            printf(" _");
-                                    }
-                                    printf("\n");
-                                }
-                                printf("\n\n\t\t%s\t\t%s\t\t%s\n", j[0].nome, j[1].nome, j[2].nome);
-                                printf("\t\t==========\t==========\t==========\n");
-                                printf("\t\tR$ %d,00\t\tR$ %d,00\t\tR$ %d,00\n", j[0].valor, j[1].valor, j[2].valor);
+                                exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
 
                                 if(letras_faltando > 3)
                                 {
-                                    printf("\n\nRoda a roda!");
+                                    printf("\n\nRoda a roda!\n");
+                                    system("pause");
                                     valor = sortear_valor_letra();
 
                                     if(valor == 0)
                                     {
                                        printf("\n\nPASSA A VEZ");
-                                       printf("\n\nA vez será passada para o jogador 1");
+                                       printf("\n\nA vez será passada para %s\n", j[0].nome);
                                        j[2].jogada = 0;
                                        j[0].jogada = 1;
                                     }
@@ -318,7 +281,7 @@ int main()
                                         if(valor > 0 && valor < 0.02)
                                         {
                                             printf("\n\nPERDEU TUDO");
-                                            printf("\n\nA vez será passada para o jogador 1");
+                                            printf("\n\nA vez será passada para %s\n", j[0].nome);
                                             j[2].valor = 0;
                                             j[2].jogada = 0;
                                             j[0].jogada = 1;
@@ -336,7 +299,7 @@ int main()
                                                     if (Palavras_da_rodada[i][k] == letra)
                                                     {
                                                         Matriz_de_comparacao[i][k] = 0;
-                                                        j[1].valor = j[1].valor + valor;
+                                                        j[2].valor = j[2].valor + valor;
                                                         cont ++;
                                                     }
                                                 }
@@ -344,7 +307,7 @@ int main()
                                             if(cont == 0)
                                             {
                                                 printf("\nNão existe letra %c na palavra.", letra);
-                                                printf("\n\nA vez será passada para o jogador 1");
+                                                printf("\n\nA vez será passada para %s\n", j[0].nome);
                                                 j[2].jogada = 0;
                                                 j[0].jogada = 1;
                                             }
@@ -358,7 +321,7 @@ int main()
                                     if (valor == 0)
                                     {
                                         printf("\n\nPASSA A VEZ");
-                                        printf("\n\nA vez será passada para o jogador 1");
+                                        printf("\n\nA vez será passada para %s\n", j[0].nome);
                                         j[2].jogada = 0;
                                         j[0].jogada = 1;
                                     }
@@ -367,7 +330,7 @@ int main()
                                         if(valor > 0 && valor < 0.02)
                                         {
                                             printf("\n\nPERDEU TUDO");
-                                            printf("\n\nA vez será passada para o jogador 1");
+                                            printf("\n\nA vez será passada para %s\n", j[0].nome);
                                             j[2].valor = 0;
                                             j[2].jogada = 0;
                                             j[0].jogada = 1;
@@ -569,4 +532,26 @@ float sortear_valor_letra()
         fclose(arquivo_leitura);
     }
     return valor;
+}
+
+void exibir_tela(char Pi[], int n, char Pa[][MAXCARC], int comp[][MAXCARC])
+{
+    int i, k;
+
+    printf("\n\tA palavra está associada com: \t%s\n", Pi);
+    for (i = 0; i < n; i++)
+    {
+        printf("\n\t\t\t");
+        for (k = 0; k < strlen(Pa[i]); k++)
+        {
+            if (comp[i][k] == 0)
+                printf(" %c", Pa[i][k]);
+            if (comp[i][k] == 1)
+                printf(" _");
+        }
+        printf("\n");
+    }
+    printf("\n\n\t%-20s%-20s%-20s\n", j[0].nome, j[1].nome, j[2].nome);
+    printf("\t===========\t    ===========\t\t===========\n");
+    printf("\tR$ %5d,00\t    R$ %5d,00\t\tR$ %5d,00\n", j[0].valor, j[1].valor, j[2].valor);
 }
