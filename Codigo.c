@@ -4,7 +4,6 @@
 #include <locale.h>
 #include <dos.h>
 
-#define SENHA 8943581
 #define MAXCARC 17
 #define MAXPAL 3
 
@@ -20,6 +19,7 @@ typedef struct
     char nome[MAXCARC];
     int valor;
     int jogada;
+    int verificador;
 } jogador;
 
 FILE *arquivo_leitura;
@@ -32,21 +32,23 @@ void sortear_palavra(char Pi[], char Pa[][MAXCARC], int *k);
 float sortear_valor_letra();
 void exibir_tela(char Pi[], int n, char Pa[][MAXCARC], int comp[][MAXCARC]);
 int compara_palavras(char Ori[][MAXCARC], char Dig[][MAXCARC], int n);
+int verifica_senha();
+void contagem_regressiva();
 
 int main()
 {
     setlocale(LC_ALL, "");
 
     char codigo, letra;
-    char Pista_da_rodada[MAXCARC],Palavra[MAXPAL][MAXCARC], Palavras_da_rodada[MAXPAL][MAXCARC];
-    int senha, i, k, Qtd_da_rodada, letras_faltando, cont, tentativas;
-    int Matriz_de_comparacao[MAXPAL][MAXCARC];
+    int i, k, Qtd_da_rodada, letras_faltando, cont, tentativas;
     float valor;
+
+    char Pista_da_rodada[MAXCARC], Palavras_da_rodada[MAXPAL][MAXCARC], Palavra[MAXPAL][MAXCARC];
+    int Matriz_de_comparacao[MAXPAL][MAXCARC];
 
     printf("BEM-VIMDO ao jogo Roda a Roda\n");
     lista_operacoes();
-    printf("\nDigite o código da operação : ");
-    fflush(stdin); scanf("%c", &codigo);
+    fflush(stdin); codigo = getchar();
 
     while (codigo != 'f')
     {
@@ -56,9 +58,10 @@ int main()
                 strcpy(Pista_da_rodada, "");
                 Qtd_da_rodada = letras_faltando = tentativas = 0;
                 for(i = 0; i < MAXPAL; i++)
+                {
                     strcpy(Palavras_da_rodada[i], "");
-                for(i = 0; i < MAXPAL; i++)
                     strcpy(Palavra[i], "");
+                }
                 for(i = 0; i < MAXPAL; i++)
                     for(k = 0; k < MAXCARC; k++)
                         Matriz_de_comparacao[i][k] = 0;
@@ -68,30 +71,26 @@ int main()
                 {
                     printf("\nQual o nome do jogador %d: ", i+1);
                     fflush(stdin); scanf("%s", &j[i].nome);
-                    j[i].valor = j[i].jogada = 0;
+                    j[i].valor = j[i].jogada = j[i].verificador = 0;
                 }
 
                 sortear_palavra(Pista_da_rodada, Palavras_da_rodada, &Qtd_da_rodada);
 
                 for (i = 0; i < Qtd_da_rodada; i++)
-                {
                     for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
-                    {
                         if (Palavras_da_rodada[i][k] != '\0')
                         {
                             Matriz_de_comparacao[i][k] = 1;
                             letras_faltando ++;
                         }
-                    }
-                }
 
                 j[0].jogada = 1;
+
                 while(letras_faltando > 0)
                 {
-                    if (j[0].jogada == 1)
+                    if (j[0].jogada == 1 && j[0].verificador == 0)
                     {
                         exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
-
                         if(letras_faltando > 3)
                         {
                             printf("\n\nRoda a roda! %s\n", j[0].nome);
@@ -100,8 +99,8 @@ int main()
 
                             if(valor == 0)
                             {
-                               printf("\nPASSA A VEZ");
-                               printf("\n\nA vez será passada para %s\n", j[1].nome);
+                               printf("\nPASSA A VEZ\n");
+                               printf("\nA vez será passada para %s\n", j[1].nome);
                                j[0].jogada = 0;
                                j[1].jogada = 1;
                             }
@@ -109,48 +108,45 @@ int main()
                             {
                                 if(valor > 0 && valor < 0.02)
                                 {
-                                    printf("\nPERDEU TUDO");
-                                    printf("\n\nA vez será passada para %s\n", j[1].nome);
-                                    j[0].valor = 0;
-                                    j[0].jogada = 0;
+                                    printf("\nPERDEU TUDO\n");
+                                    printf("\nA vez será passada para %s\n", j[1].nome);
+                                    j[0].valor = j[0].jogada = 0;
                                     j[1].jogada = 1;
                                 }
                                 else
                                 {
                                     printf("\nUma letra por R$ %.0f,00: ", valor);
-                                    fflush(stdin); scanf("%c", &letra);
+                                    fflush(stdin); letra = getchar();
                                     letra = toupper(letra);
                                     cont = 0;
                                     for (i = 0; i < Qtd_da_rodada; i++)
-                                    {
                                         for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
-                                        {
                                             if (Palavras_da_rodada[i][k] == letra)
                                             {
                                                 Matriz_de_comparacao[i][k] = 0;
-                                                j[0].valor = j[0].valor + valor;
+                                                j[0].valor += valor;
                                                 cont ++;
                                             }
-                                        }
-                                    }
                                     if(cont == 0)
                                     {
-                                        printf("\nNão existe letra %c na palavra.", letra);
-                                        printf("\n\nA vez será passada para %s\n", j[1].nome);
+                                        printf("\nNão existe letra %c na palavra.\n", letra);
+                                        printf("\nA vez será passada para %s\n", j[1].nome);
                                         j[0].jogada = 0;
                                         j[1].jogada = 1;
                                     }
-                                    letras_faltando = letras_faltando - cont;
+                                    letras_faltando -= cont;
                                 }
                             }
                         }
                         else
                         {
+                            sleep(1);
                             valor = sortear_valor_letra();
+                            j[0].verificador = 1;
                             if (valor == 0)
                             {
-                                printf("\nPASSA A VEZ");
-                                printf("\n\nA vez será passada para %s\n", j[1].nome);
+                                printf("\nPASSA A VEZ\n");
+                                printf("\nA vez será passada para %s\n", j[1].nome);
                                 j[0].jogada = 0;
                                 j[1].jogada = 1;
                             }
@@ -158,309 +154,282 @@ int main()
                             {
                                 if(valor > 0 && valor < 0.02)
                                 {
-                                    printf("\nPERDEU TUDO");
-                                    printf("\n\nA vez será passada para %s\n", j[1].nome);
-                                    j[0].valor = 0;
-                                    j[0].jogada = 0;
+                                    printf("\nPERDEU TUDO\n");
+                                    printf("\nA vez será passada para %s\n", j[1].nome);
+                                    j[0].valor = j[0].jogada = 0;
                                     j[1].jogada = 1;
                                 }
                                 else
                                 {
                                     if (tentativas < 3)
                                     {
+                                        tentativas++;
                                         printf("\n%s: Faltam %d letras para completar a(s) palavra(s)\n", j[0].nome, letras_faltando);
-                                        printf("\nVocê tem 5 segundos para pensar e depois digitar a palavra");
-                                        for (i = 5; i >0; i--)
-                                        {
-                                            printf("...%d", i);
-                                            sleep(1);
-                                        }
-                                        printf("\nValendo R$ %.0f,00, a(s) palavra(s) é(são): ", j[0].valor + valor);
+                                        contagem_regressiva();
+                                        printf("\nValendo R$ %.0f,00, a(s) palavra(s) é(são)", j[0].valor + valor);
                                         for (i = 0; i < Qtd_da_rodada; i++)
                                         {
-                                            printf("\nDigite a %d° palavra: ", i+1);
+                                            printf("\n%d° palavra: ", i+1);
                                             fflush(stdin); scanf("%s", &Palavra[i]);
                                         }
                                         if(compara_palavras(Palavras_da_rodada, Palavra, Qtd_da_rodada) == 0)
                                         {
-                                            printf("\nPARABÉNS %s você é o ganhador!!!!!\n\n", j[0].nome);
+                                            j[0].valor += valor;
+                                            for (i = 0; i < Qtd_da_rodada; i++)
+                                                for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
+                                                        Matriz_de_comparacao[i][k] = 0;
+                                            exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
+                                            printf("\nPARABÉNS %s você ganhou R$ %d,00 !!!!!\n\n", j[0].nome, j[0].valor);
                                             letras_faltando = j[0].jogada = j[1].jogada = j[2].jogada = 0;
                                         }
                                         else
                                         {
                                             printf("\nQue pena %s você errou\n", j[0].nome);
-                                            tentativas++;
+                                            if (tentativas < 3)
+                                                printf("\nA vez será passada para %s\n", j[1].nome);
                                             j[0].jogada = 0;
                                             j[1].jogada = 1;
                                         }
-
-                                    }
-                                    else
-                                    {
-                                        printf("\nInfelizmente não houve ganhador\n");
-                                        letras_faltando = j[0].jogada = j[1].jogada = j[2].jogada = 0;
                                     }
                                 }
                             }
                         }
                     }
-                    else
+                    if (j[1].jogada == 1 && j[1].verificador == 0)
                     {
-                        if (j[1].jogada == 1)
+                        exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
+                        if(letras_faltando > 3)
                         {
-                            exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
+                            printf("\n\nRoda a roda! %s\n", j[1].nome);
+                            sleep(2);
+                            valor = sortear_valor_letra();
 
-                            if(letras_faltando > 3)
+                            if(valor == 0)
                             {
-                                printf("\n\nRoda a roda! %s\n", j[1].nome);
-                                sleep(2);
-                                valor = sortear_valor_letra();
-
-                                if(valor == 0)
-                                {
-                                   printf("\nPASSA A VEZ");
-                                   printf("\n\nA vez será passada para %s\n", j[2].nome);
-                                   j[1].jogada = 0;
-                                   j[2].jogada = 1;
-                                }
-                                else
-                                {
-                                    if(valor > 0 && valor < 0.02)
-                                    {
-                                        printf("\nPERDEU TUDO");
-                                        printf("\n\nA vez será passada para %s\n", j[2].nome);
-                                        j[1].valor = 0;
-                                        j[1].jogada = 0;
-                                        j[2].jogada = 1;
-                                    }
-                                    else
-                                    {
-                                        printf("\nUma letra por R$ %.0f,00: ", valor);
-                                        fflush(stdin); scanf("%c", &letra);
-                                        letra = toupper(letra);
-                                        cont = 0;
-                                        for (i = 0; i < Qtd_da_rodada; i++)
-                                        {
-                                            for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
-                                            {
-                                                if (Palavras_da_rodada[i][k] == letra)
-                                                {
-                                                    Matriz_de_comparacao[i][k] = 0;
-                                                    j[1].valor = j[1].valor + valor;
-                                                    cont ++;
-                                                }
-                                            }
-                                        }
-                                        if(cont == 0)
-                                        {
-                                            printf("\nNão existe letra %c na palavra.", letra);
-                                            printf("\n\nA vez será passada para %s\n", j[2].nome);
-                                            j[1].jogada = 0;
-                                            j[2].jogada = 1;
-                                        }
-                                        letras_faltando = letras_faltando - cont;
-                                    }
-                                }
+                               printf("\nPASSA A VEZ\n");
+                               printf("\nA vez será passada para %s\n", j[2].nome);
+                               j[1].jogada = 0;
+                               j[2].jogada = 1;
                             }
                             else
                             {
-                                valor = sortear_valor_letra();
-                                if (valor == 0)
+                                if(valor > 0 && valor < 0.02)
                                 {
-                                    printf("\nPASSA A VEZ");
-                                    printf("\n\nA vez será passada para %s\n", j[2].nome);
-                                    j[1].jogada = 0;
+                                    printf("\nPERDEU TUDO\n");
+                                    printf("\nA vez será passada para %s\n", j[2].nome);
+                                    j[1].valor = j[1].jogada = 0;
                                     j[2].jogada = 1;
                                 }
                                 else
                                 {
-                                    if(valor > 0 && valor < 0.02)
+                                    printf("\nUma letra por R$ %.0f,00: ", valor);
+                                    fflush(stdin); letra = getchar();
+                                    letra = toupper(letra);
+                                    cont = 0;
+                                    for (i = 0; i < Qtd_da_rodada; i++)
+                                        for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
+                                            if (Palavras_da_rodada[i][k] == letra)
+                                            {
+                                                Matriz_de_comparacao[i][k] = 0;
+                                                j[1].valor += valor;
+                                                cont ++;
+                                            }
+                                    if(cont == 0)
                                     {
-                                        printf("\nPERDEU TUDO");
-                                        printf("\n\nA vez será passada para %s\n", j[2].nome);
-                                        j[1].valor = 0;
+                                        printf("\nNão existe letra %c na palavra.\n", letra);
+                                        printf("\nA vez será passada para %s\n", j[2].nome);
                                         j[1].jogada = 0;
                                         j[2].jogada = 1;
                                     }
-                                    else
-                                    {
-                                        if (tentativas < 3)
-                                        {
-                                            printf("\n%s: Faltam %d letras para completar a(s) palavra(s)\n", j[1].nome, letras_faltando);
-                                            printf("\nVocê tem 5 segundos para pensar e depois digitar a palavra");
-                                            for (i = 5; i >0; i--)
-                                            {
-                                                printf("...%d", i);
-                                                sleep(1);
-                                            }
-                                            printf("\nValendo R$ %.0f,00, a(s) palavra(s) é(são): ", j[1].valor + valor);
-                                            for (i = 0; i < Qtd_da_rodada; i++)
-                                            {
-                                                printf("\nDigite a %d° palavra: ", i+1);
-                                                fflush(stdin); scanf("%s", &Palavra[i]);
-                                            }
-                                            if(compara_palavras(Palavras_da_rodada, Palavra, Qtd_da_rodada) == 0)
-                                            {
-                                                printf("\nPARABÉNS %s você é o ganhador!!!!!\n\n", j[1].nome);
-                                                letras_faltando = j[0].jogada = j[1].jogada = j[2].jogada = 0;
-                                            }
-                                            else
-                                            {
-                                                printf("\nQue pena %s você errou\n", j[1].nome);
-                                                tentativas++;
-                                                j[1].jogada = 0;
-                                                j[2].jogada = 1;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            printf("\nInfelizmente não houve ganhador\n");
-                                            letras_faltando = j[0].jogada = j[1].jogada = j[2].jogada = 0;
-                                        }
-                                    }
+                                    letras_faltando -= cont;
                                 }
                             }
                         }
                         else
                         {
-                            if (j[2].jogada == 1)
+                            sleep(1);
+                            valor = sortear_valor_letra();
+                            j[1].verificador = 1;
+                            if (valor == 0)
                             {
-                                exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
-
-                                if(letras_faltando > 3)
-                                {
-                                    printf("\n\nRoda a roda! %s\n", j[2].nome);
-                                    sleep(2);
-                                    valor = sortear_valor_letra();
-
-                                    if(valor == 0)
-                                    {
-                                       printf("\nPASSA A VEZ");
-                                       printf("\n\nA vez será passada para %s\n", j[0].nome);
-                                       j[2].jogada = 0;
-                                       j[0].jogada = 1;
-                                    }
-                                    else
-                                    {
-                                        if(valor > 0 && valor < 0.02)
-                                        {
-                                            printf("\nPERDEU TUDO");
-                                            printf("\n\nA vez será passada para %s\n", j[0].nome);
-                                            j[2].valor = 0;
-                                            j[2].jogada = 0;
-                                            j[0].jogada = 1;
-                                        }
-                                        else
-                                        {
-                                            printf("\nUma letra por R$ %.0f,00: ", valor);
-                                            fflush(stdin); scanf("%c", &letra);
-                                            letra = toupper(letra);
-                                            cont = 0;
-                                            for (i = 0; i < Qtd_da_rodada; i++)
-                                            {
-                                                for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
-                                                {
-                                                    if (Palavras_da_rodada[i][k] == letra)
-                                                    {
-                                                        Matriz_de_comparacao[i][k] = 0;
-                                                        j[2].valor = j[2].valor + valor;
-                                                        cont ++;
-                                                    }
-                                                }
-                                            }
-                                            if(cont == 0)
-                                            {
-                                                printf("\nNão existe letra %c na palavra.", letra);
-                                                printf("\n\nA vez será passada para %s\n", j[0].nome);
-                                                j[2].jogada = 0;
-                                                j[0].jogada = 1;
-                                            }
-                                            letras_faltando = letras_faltando - cont;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    valor = sortear_valor_letra();
-                                    if (valor == 0)
-                                    {
-                                        printf("\nPASSA A VEZ");
-                                        printf("\n\nA vez será passada para %s\n", j[0].nome);
-                                        j[2].jogada = 0;
-                                        j[0].jogada = 1;
-                                    }
-                                    else
-                                    {
-                                        if(valor > 0 && valor < 0.02)
-                                        {
-                                            printf("\nPERDEU TUDO");
-                                            printf("\n\nA vez será passada para %s\n", j[0].nome);
-                                            j[2].valor = 0;
-                                            j[2].jogada = 0;
-                                            j[0].jogada = 1;
-                                        }
-                                        else
-                                        {
-                                            if (tentativas < 3)
-                                            {
-                                                printf("\n%s: Faltam %d letras para completar a(s) palavra(s)\n", j[2].nome, letras_faltando);
-                                                printf("\nVocê tem 5 segundos para pensar e depois digitar a palavra");
-                                                for (i = 5; i >0; i--)
-                                                {
-                                                    printf("...%d", i);
-                                                    sleep(1);
-                                                }
-                                                printf("\nValendo R$ %.0f,00, a(s) palavra(s) é(são): ", j[2].valor + valor);
-                                                for (i = 0; i < Qtd_da_rodada; i++)
-                                                {
-                                                    printf("\nDigite a %d° palavra: ", i+1);
-                                                    fflush(stdin); scanf("%s", &Palavra[i]);
-                                                }
-                                                if(compara_palavras(Palavras_da_rodada, Palavra, Qtd_da_rodada) == 0)
-                                                {
-                                                    printf("\nPARABÉNS %s você é o ganhador!!!!!\n\n", j[2].nome);
-                                                    letras_faltando = j[0].jogada = j[1].jogada = j[2].jogada = 0;
-                                                }
-                                                else
-                                                {
-                                                    printf("\nQue pena %s você errou\n", j[2].nome);
-                                                    tentativas++;
-                                                    j[2].jogada = 0;
-                                                    j[0].jogada = 1;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                printf("\nInfelizmente não houve ganhador\n");
-                                                letras_faltando = j[0].jogada = j[1].jogada = j[2].jogada = 0;
-                                            }
-                                        }
-                                    }
-                                }
+                                printf("\nPASSA A VEZ\n");
+                                printf("\nA vez será passada para %s\n", j[2].nome);
+                                j[1].jogada = 0;
+                                j[2].jogada = 1;
                             }
                             else
                             {
-                                printf("Fim de Jogo. Não houve ganhador");
-                                letras_faltando = 0;
+                                if(valor > 0 && valor < 0.02)
+                                {
+                                    printf("\nPERDEU TUDO\n");
+                                    printf("\nA vez será passada para %s\n", j[2].nome);
+                                    j[1].valor = j[1].jogada = 0;
+                                    j[2].jogada = 1;
+                                }
+                                else
+                                {
+                                    if (tentativas < 3)
+                                    {
+                                        tentativas++;
+                                        printf("\n%s: Faltam %d letras para completar a(s) palavra(s)\n", j[1].nome, letras_faltando);
+                                        contagem_regressiva();
+                                        printf("\nValendo R$ %.0f,00, a(s) palavra(s) é(são)", j[1].valor + valor);
+                                        for (i = 0; i < Qtd_da_rodada; i++)
+                                        {
+                                            printf("\n%d° palavra: ", i+1);
+                                            fflush(stdin); scanf("%s", &Palavra[i]);
+                                        }
+                                        if(compara_palavras(Palavras_da_rodada, Palavra, Qtd_da_rodada) == 0)
+                                        {
+                                            j[1].valor += valor;
+                                            for (i = 0; i < Qtd_da_rodada; i++)
+                                                for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
+                                                        Matriz_de_comparacao[i][k] = 0;
+                                            exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
+                                            printf("\nPARABÉNS %s você ganhou R$ %d,00 !!!!!\n\n", j[1].nome, j[1].valor);
+                                            letras_faltando = j[0].jogada = j[1].jogada = j[2].jogada = 0;
+                                        }
+                                        else
+                                        {
+                                            printf("\nQue pena %s você errou\n", j[1].nome);
+                                            if (tentativas < 3)
+                                                printf("\nA vez será passada para %s\n", j[2].nome);
+                                            j[1].jogada = 0;
+                                            j[2].jogada = 1;
+                                        }
+                                    }
+                                }
                             }
                         }
+                    }
+                    if (j[2].jogada == 1 && j[2].verificador == 0)
+                    {
+                        exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
+                        if(letras_faltando > 3)
+                        {
+                            printf("\n\nRoda a roda! %s\n", j[2].nome);
+                            sleep(2);
+                            valor = sortear_valor_letra();
+
+                            if(valor == 0)
+                            {
+                               printf("\nPASSA A VEZ\n");
+                               printf("\nA vez será passada para %s\n", j[0].nome);
+                               j[2].jogada = 0;
+                               j[0].jogada = 1;
+                            }
+                            else
+                            {
+                                if(valor > 0 && valor < 0.02)
+                                {
+                                    printf("\nPERDEU TUDO\n");
+                                    printf("\nA vez será passada para %s\n", j[0].nome);
+                                    j[2].valor = j[2].jogada = 0;
+                                    j[0].jogada = 1;
+                                }
+                                else
+                                {
+                                    printf("\nUma letra por R$ %.0f,00: ", valor);
+                                    fflush(stdin); letra = getchar();
+                                    letra = toupper(letra);
+                                    cont = 0;
+                                    for (i = 0; i < Qtd_da_rodada; i++)
+                                        for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
+                                            if (Palavras_da_rodada[i][k] == letra)
+                                            {
+                                                Matriz_de_comparacao[i][k] = 0;
+                                                j[2].valor += valor;
+                                                cont ++;
+                                            }
+                                    if(cont == 0)
+                                    {
+                                        printf("\nNão existe letra %c na palavra.\n", letra);
+                                        printf("\nA vez será passada para %s\n", j[0].nome);
+                                        j[2].jogada = 0;
+                                        j[0].jogada = 1;
+                                    }
+                                    letras_faltando -= cont;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            sleep(1);
+                            valor = sortear_valor_letra();
+                            j[2].verificador = 1;
+                            if (valor == 0)
+                            {
+                                printf("\nPASSA A VEZ\n");
+                                printf("\nA vez será passada para %s\n", j[0].nome);
+                                j[2].jogada = 0;
+                                j[0].jogada = 1;
+                            }
+                            else
+                            {
+                                if(valor > 0 && valor < 0.02)
+                                {
+                                    printf("\nPERDEU TUDO\n");
+                                    printf("\nA vez será passada para %s\n", j[0].nome);
+                                    j[2].valor = j[2].jogada = 0;
+                                    j[0].jogada = 1;
+                                }
+                                else
+                                {
+                                    if (tentativas < 3)
+                                    {
+                                        tentativas++;
+                                        printf("\n%s: Faltam %d letras para completar a(s) palavra(s)\n", j[2].nome, letras_faltando);
+                                        contagem_regressiva();
+                                        printf("\nValendo R$ %.0f,00, a(s) palavra(s) é(são)", j[2].valor + valor);
+                                        for (i = 0; i < Qtd_da_rodada; i++)
+                                        {
+                                            printf("\n%d° palavra: ", i+1);
+                                            fflush(stdin); scanf("%s", &Palavra[i]);
+                                        }
+                                        if(compara_palavras(Palavras_da_rodada, Palavra, Qtd_da_rodada) == 0)
+                                        {
+                                            j[1].valor += valor;
+                                            for (i = 0; i < Qtd_da_rodada; i++)
+                                                for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
+                                                        Matriz_de_comparacao[i][k] = 0;
+                                            exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
+                                            printf("\nPARABÉNS %s você ganhou R$ %d,00 !!!!!\n\n", j[2].nome, j[2].valor);
+                                            letras_faltando = j[0].jogada = j[1].jogada = j[2].jogada = 0;
+                                        }
+                                        else
+                                        {
+                                            printf("\nQue pena %s você errou\n", j[2].nome);
+                                            if (tentativas < 3)
+                                                printf("\nA vez será passada para %s\n", j[0].nome);
+                                            j[2].jogada = 0;
+                                            j[0].jogada = 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (tentativas > 2)
+                    {
+                        for (i = 0; i < Qtd_da_rodada; i++)
+                            for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
+                                Matriz_de_comparacao[i][k] = 0;
+                        exibir_tela(Pista_da_rodada, Qtd_da_rodada, Palavras_da_rodada, Matriz_de_comparacao);
+                        printf("\nInfelizmente não houve ganhador\n");
+                        letras_faltando = j[0].jogada = j[1].jogada = j[2].jogada = 0;
                     }
                 }
                 break;
 
             case 'a' :
-                printf("\nDigite a senha para acesso ao banco de dados: ");
-                fflush(stdin); scanf("%d", &senha);
-                if (senha == SENHA)
+                if (verifica_senha() == 1)
                     adicionar_ao_banco_de_dados();
                 else
                     printf("\nSenha inválida.\n");
                 break;
 
             case 'v' :
-                printf("\nDigite a senha para acesso ao banco de dados: ");
-                fflush(stdin); scanf("%d", &senha);
-                if (senha == SENHA)
+                if (verifica_senha() == 1)
                     imprimir_banco_de_dados();
                 else
                     printf("\nSenha inválida.\n");
@@ -473,9 +442,9 @@ int main()
             printf("-");
         printf("\n");
         lista_operacoes();
-        printf("\nDigite o código da operação : ");
-        fflush(stdin); scanf("%c", &codigo);
+        fflush(stdin); codigo = getchar();
     }
+    return 0;
 }
 
 void lista_operacoes()
@@ -484,6 +453,7 @@ void lista_operacoes()
            "\n  a - Acrecentar ao banco de dados"
            "\n  v - Visualizar banco de dados"
            "\n  f - finalizar\n");
+    printf("\nDigite o código da operação: ");
 }
 
 void imprimir_banco_de_dados()
@@ -505,7 +475,7 @@ void imprimir_banco_de_dados()
     }
     else
     {
-        printf("\n       DICA      |"
+        printf("\n\n       DICA      |"
                " QUANTIDADE DE PALAVRAS|"
                "                                PALAVRAS\n");
         for(i = 0; i < 114 ; i++)
@@ -667,4 +637,31 @@ int compara_palavras(char Ori[][MAXCARC], char Dig[][MAXCARC], int n)
                 retorno ++;
 
     return retorno;
+}
+
+int verifica_senha()
+{
+    char senha[7];
+    int i;
+    printf("\nDigite a senha para acesso ao banco de dados: ");
+    for(i = 0; i < 7 ; i++)
+    {
+        fflush (stdin); senha[i] = getch(); printf ("*");
+    }
+    if (senha[0] == '8' && senha[1] == '9' && senha[2] == '4' && senha[3] == '3' && senha[4] == '5' && senha[5] == '8' && senha[6] == '1')
+        return 1;
+    else
+        return 0;
+}
+
+void contagem_regressiva()
+{
+    int i;
+    printf("\nVocê tem 5 segundos para pensar e depois digitar a palavra");
+    for (i = 5; i >0; i--)
+    {
+        printf("...%d", i);
+        sleep(1);
+    }
+    printf("\n");
 }
