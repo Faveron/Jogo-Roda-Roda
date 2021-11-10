@@ -36,7 +36,7 @@ int compara_palavras(char Ori[][MAXCARC], char Dig[][MAXCARC], int n);
 int verifica_senha();
 void contagem_regressiva();
 void som_catraca();
-int letra_escoliha(char L, char letras[26]);
+int letra_escolhida(char L, char letras[26]);
 
 int main()
 {
@@ -123,7 +123,7 @@ int main()
                                         printf("\nUma letra por R$ %.0f,00: ", valor);
                                         fflush(stdin); letra = getchar();
                                         letra = toupper(letra);
-                                    }while(letra_escoliha(letra, vet_letras) != 0 );
+                                    }while(letra_escolhida(letra, vet_letras) != 0 );
 
                                     cont = 0;
                                     for (i = 0; i < Qtd_da_rodada; i++)
@@ -237,7 +237,7 @@ int main()
                                         printf("\nUma letra por R$ %.0f,00: ", valor);
                                         fflush(stdin); letra = getchar();
                                         letra = toupper(letra);
-                                    }while(letra_escoliha(letra, vet_letras) != 0 );
+                                    }while(letra_escolhida(letra, vet_letras) != 0 );
                                     cont = 0;
                                     for (i = 0; i < Qtd_da_rodada; i++)
                                         for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
@@ -350,7 +350,7 @@ int main()
                                         printf("\nUma letra por R$ %.0f,00: ", valor);
                                         fflush(stdin); letra = getchar();
                                         letra = toupper(letra);
-                                    }while(letra_escoliha(letra, vet_letras) != 0 );
+                                    }while(letra_escolhida(letra, vet_letras) != 0 );
                                     cont = 0;
                                     for (i = 0; i < Qtd_da_rodada; i++)
                                         for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
@@ -700,7 +700,7 @@ void som_catraca()
     Beep(200, 900);
 }
 
-int letra_escoliha(char L, char letras[26])
+int letra_escolhida(char L, char letras[26])
 {
     int cont, i;
 
