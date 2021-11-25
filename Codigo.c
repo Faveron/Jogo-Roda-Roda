@@ -411,7 +411,7 @@ int main()
                                         }
                                         if(compara_palavras(Palavras_da_rodada, Palavra, Qtd_da_rodada) == 0)
                                         {
-                                            j[1].valor += valor;
+                                            j[2].valor += valor;
                                             for (i = 0; i < Qtd_da_rodada; i++)
                                                 for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
                                                         Matriz_de_comparacao[i][k] = 0;
@@ -432,7 +432,7 @@ int main()
                             }
                         }
                     }
-                    if (tentativas > 2)
+                    if (tentativas > 2 && letras_faltando != 0)
                     {
                         for (i = 0; i < Qtd_da_rodada; i++)
                             for (k = 0; k < strlen(Palavras_da_rodada[i]); k++)
