@@ -40,7 +40,7 @@ int letra_escolhida(char L, char letras[26]);
 
 int main()
 {
-    setlocale(LC_ALL, "");
+    setlocale(LC_ALL, "Portuguese");
 
     char codigo, letra, vet_letras[26] = "";
     int i, k, Qtd_da_rodada, letras_faltando, cont, tentativas;
