@@ -98,6 +98,7 @@ int main()
                         if(letras_faltando > 3)
                         {
                             printf("\n\nRoda a roda! %s\n", j[0].nome);
+                            getch();
                             valor = sortear_valor_letra();
 
                             if(valor == 0)
@@ -147,7 +148,8 @@ int main()
                         }
                         else
                         {
-                            sleep(1);
+                            printf("\n\nRoda a roda! %s\n", j[0].nome);
+                            getch();
                             valor = sortear_valor_letra();
                             j[0].verificador = 1;
                             if (valor == 0)
@@ -212,6 +214,7 @@ int main()
                         if(letras_faltando > 3)
                         {
                             printf("\n\nRoda a roda! %s\n", j[1].nome);
+                            getch();
                             valor = sortear_valor_letra();
 
                             if(valor == 0)
@@ -260,7 +263,8 @@ int main()
                         }
                         else
                         {
-                            sleep(1);
+                            printf("\n\nRoda a roda! %s\n", j[1].nome);
+                            getch();
                             valor = sortear_valor_letra();
                             j[1].verificador = 1;
                             if (valor == 0)
@@ -325,6 +329,7 @@ int main()
                         if(letras_faltando > 3)
                         {
                             printf("\n\nRoda a roda! %s\n", j[2].nome);
+                            getch();
                             valor = sortear_valor_letra();
 
                             if(valor == 0)
@@ -373,7 +378,8 @@ int main()
                         }
                         else
                         {
-                            sleep(1);
+                            printf("\n\nRoda a roda! %s\n", j[2].nome);
+                            getch();
                             valor = sortear_valor_letra();
                             j[2].verificador = 1;
                             if (valor == 0)
