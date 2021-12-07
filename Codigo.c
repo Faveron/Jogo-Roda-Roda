@@ -718,7 +718,7 @@ int letra_escolhida(char L, char letras[26])
     if (cont == 0)
         letras[i] = L;
     else
-        printf("\nLetra repitida, insira outra letra\n");
+        printf("\nLetra repetida, insira outra letra\n");
 
     return cont;
 }
